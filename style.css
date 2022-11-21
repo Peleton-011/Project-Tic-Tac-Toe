@@ -1,0 +1,24 @@
+body {
+    min-height: 100vh;
+    min-width: 100vw;
+    display: grid;
+    grid-template-areas: 
+    "header header header"
+    "main main main"
+    "footer footer footer";
+
+    grid-template-columns: 1fr min(80vw, 80vh) 1fr;
+    grid-template-rows: 1fr min(80vw, 80vh) 1fr;
+}
+
+header {
+    grid-area: header;
+}
+
+main {
+    grid-area: main;
+}
+
+footer {
+    grid-area: footer;
+}
