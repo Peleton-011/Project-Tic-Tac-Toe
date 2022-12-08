@@ -32,6 +32,7 @@ const cellFactory = (position, gridSize) => {
         
         if (owner === "none") {
             owner = newOwner;
+            return true;
         }
 
         return errorFactory(410, "", `Cell already owned by ${owner}`);        
@@ -316,13 +317,21 @@ const gameObject = ((size, lineSize, players, randomTurns, trueRandomTurns) => {
                     i % size
                 }" y="${Math.floor(i / size)}"></div>`
             );
+
+            addCellEvents(i);
         }
     };
 
     const addCellEvents = (cellID) => {
         const DOMcell = document.getElementById(`cell${cellID}`);
         DOMcell.addEventListener("click", (e) => {
-            e.target;
+            if (grid.cellById(cellID).setOwner(currPlayer) !== true) {
+                return grid.cellById(cellID).setOwner(currPlayer);
+            }
+
+            DOMcell.textContent = currPlayer;
+
+            changeTurn();
         });
     };
 
