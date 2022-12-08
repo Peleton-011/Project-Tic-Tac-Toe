@@ -41,17 +41,25 @@ const cellFactory = (position, gridSize) => {
         return owner;
     };
 
+    const erase = () => {
+        owner = "none";
+    }
+
     return {
         id,
         owner,
         x,
         y,
         setOwner,
-        getOwner
+        getOwner,
+        erase
     };
 };
 
 const gridFactory = (size, lineSize) => {
+
+    const lineLen = lineSize ? lineSize : size;
+
     const grid = [];
     for (let i = 0; i < size * size; i++) {
         grid.push(cellFactory(i, size));
@@ -124,12 +132,12 @@ const gridFactory = (size, lineSize) => {
         return false;
     }
 
-    const checkLineFor = (size, user, x, y, lineSize, isRotated) => {
+    const checkLineFor = (size, user, x, y, isRotated) => {
         let chain = 0;
 
         //If no rotation is specified, both are checked
         if (typeof isRotated !== "boolean") {
-            return checkLineFor(size, user, x, y, lineSize, false) || checkLineFor(size, user, x, y, lineSize, true);
+            return checkLineFor(size, user, x, y, lineLen, false) || checkLineFor(size, user, x, y, lineLen, true);
         }
 
         const checkDirection = (isReversed, isRotated) => {
@@ -139,7 +147,7 @@ const gridFactory = (size, lineSize) => {
             //If the direction is reversed start at previous cell, to not double count it
             mainCoord = mainCoord + (isReversed ? -1 : 0);
 
-            while (chain < lineSize) {
+            while (chain < lineLen) {
                 if (mainCoord >= size || mainCoord < 0) {
                     return false;
                 }
@@ -159,14 +167,14 @@ const gridFactory = (size, lineSize) => {
         checkDirection(false, isRotated);
         checkDirection(true, isRotated);
 
-        return chain > lineSize;
+        return chain > lineLen;
     }
 
-    const checkDiagonalsFor = (size, user, x, y, lineSize) => {
+    const checkDiagonalsFor = (size, user, x, y) => {
         let chain = 0;
-        const maxDiagonal = lineSize * 2 - 1;
-        const upperBound = lineSize -1;
-        const lowerBound = -lineSize +1;
+        const maxDiagonal = lineLen * 2 - 1;
+        const upperBound = lineLen -1;
+        const lowerBound = -lineLen +1;
 
         const checkDirection = (isRotated) => {
             let currX = isRotated ? x + lowerBound : x + upperBound;
@@ -194,14 +202,23 @@ const gridFactory = (size, lineSize) => {
         checkDirection(false);
         checkDirection(true);
 
-        return chain > lineSize;
+        return chain > lineLen;
     }
 
-    const checkWin = (user) => {
-        if (size === lineSize) {
+    const checkWin = (user, x, y) => {
+        if (size === lineLen) {
             return checkWholeDiagonals(size, user) || checkWholeLine(size, user);
         }
+
+        return checkDiagonalsFor(size, user, x, y) || checkLineFor(size, user, x, y)
     }   
+
+    return {
+        grid,
+        cell,
+        cellById,
+        checkWin
+    }
 }
 
 const errorFactory = (errorID, details, message) => {
@@ -247,14 +264,41 @@ const errorFactory = (errorID, details, message) => {
     };
 };
 
-const gameObject = (() => {
-    const cells = [];
+const gameObject = ((size, lineSize, players, randomTurns, trueRandomTurns) => {
 
-    const populate = (size) => {
-        board.length = 0;
-        for (let i = 0; i < size * size; i++) {
-            cells.push(cellFactory(i, size));
+    let grid = gridFactory(size, lineSize)
+
+    
+    const changeTurn = () => {
+        if (trueRandomTurns) {
+            return turns[Math.floor(Math.random() * turns.length)];
         }
+
+        let nextIndex = turns.find(currPlayer) + 1;
+        nextIndex = nextIndex > turns.length - 1 ? nextIndex - turns.length : nextIndex
+        
+        return turns[nextIndex];
+    };
+
+    const turns = players;
+    //If the turns are set to random, use Fisher Yates shuffle to sort
+    if (randomTurns) {
+        turns = shuffle(turns);
+    }
+
+    const shuffle = (arr) => {
+        for (i = arr.length -1; i > 0; i--) {
+            j = Math.floor(Math.random() * i)
+            k = arr[i]
+            arr[i] = arr[j]
+            arr[j] = k
+        }
+    }
+
+    let currPlayer = trueRandomTurns ? turns[Math.floor(Math.random() * turns.length)] : turns[0];
+
+    const populate = (size, lineSize) => {
+        grid = gridFactory(size, lineSize);
     };
 
     const drawBoard = (size) => {
