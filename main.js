@@ -265,38 +265,45 @@ const errorFactory = (errorID, details, message) => {
     };
 };
 
-const gameObject = ((size, lineSize, players, randomTurns, trueRandomTurns) => {
+const gameObject = (() => {
 
-    let grid = gridFactory(size, lineSize)
+    const turnHandler = (() => {
+        const turns = [];
 
+        const addPlayer = (player) => {
+            turns.push(player);
+            currPlayer = player;
+        };
+
+        const nextTurn = (trueRandomTurns) => {
+            if (trueRandomTurns) {
+                return turns[Math.floor(Math.random() * turns.length)];
+            }
     
-    const changeTurn = () => {
-        if (trueRandomTurns) {
-            return turns[Math.floor(Math.random() * turns.length)];
+            let nextIndex = turns.find(currPlayer) + 1;
+            nextIndex = nextIndex > turns.length - 1 ? nextIndex - turns.length : nextIndex
+            
+            currPlayer = turns[nextIndex];
+        };
+
+        //Use Fisher Yates shuffle to sort turns
+        const shuffle = () => {
+            for (i = turns.length -1; i > 0; i--) {
+                j = Math.floor(Math.random() * i)
+                k = turns[i]
+                turns[i] = turns[j]
+                turns[j] = k
+            }
         }
 
-        let nextIndex = turns.find(currPlayer) + 1;
-        nextIndex = nextIndex > turns.length - 1 ? nextIndex - turns.length : nextIndex
-        
-        return turns[nextIndex];
-    };
+        let currPlayer;
 
-    const turns = players;
-    //If the turns are set to random, use Fisher Yates shuffle to sort
-    if (randomTurns) {
-        turns = shuffle(turns);
-    }
-
-    const shuffle = (arr) => {
-        for (i = arr.length -1; i > 0; i--) {
-            j = Math.floor(Math.random() * i)
-            k = arr[i]
-            arr[i] = arr[j]
-            arr[j] = k
-        }
-    }
-
-    let currPlayer = trueRandomTurns ? turns[Math.floor(Math.random() * turns.length)] : turns[0];
+        return {
+            addPlayer,
+            nextTurn,
+            shuffle
+        };
+    });
 
     const populate = (size, lineSize) => {
         grid = gridFactory(size, lineSize);
@@ -325,20 +332,22 @@ const gameObject = ((size, lineSize, players, randomTurns, trueRandomTurns) => {
     const addCellEvents = (cellID) => {
         const DOMcell = document.getElementById(`cell${cellID}`);
         DOMcell.addEventListener("click", (e) => {
-            if (grid.cellById(cellID).setOwner(currPlayer) !== true) {
-                return grid.cellById(cellID).setOwner(currPlayer);
+            if (grid.cellById(cellID).setOwner(turnHandler.currPlayer) !== true) {
+                return grid.cellById(cellID).setOwner(turnHandler.currPlayer);
             }
 
-            DOMcell.textContent = currPlayer;
+            DOMcell.textContent = turnHandler.currPlayer;
 
-            changeTurn();
+            turnHandler.changeTurn();
         });
     };
 
     return {
         populate,
         drawBoard,
-        board,
+        turnHandler,
+        grid,
+        turns
     };
 })();
 
