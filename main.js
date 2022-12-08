@@ -267,6 +267,8 @@ const errorFactory = (errorID, details, message) => {
 
 const gameObject = (() => {
 
+    let grid;
+
     const turnHandler = (() => {
         const turns = [];
 
@@ -301,9 +303,11 @@ const gameObject = (() => {
         return {
             addPlayer,
             nextTurn,
-            shuffle
+            shuffle,
+            currPlayer,
+            turns
         };
-    });
+    })();
 
     const populate = (size, lineSize) => {
         grid = gridFactory(size, lineSize);
@@ -329,17 +333,19 @@ const gameObject = (() => {
         }
     };
 
+    const drawCell = (cellID, DOMcell) => {
+        if (grid.cellById(cellID).setOwner(turnHandler.currPlayer) !== true) {
+            return grid.cellById(cellID).setOwner(turnHandler.currPlayer);
+        }
+
+        DOMcell.textContent = turnHandler.currPlayer;
+
+        turnHandler.changeTurn();
+    }
+
     const addCellEvents = (cellID) => {
         const DOMcell = document.getElementById(`cell${cellID}`);
-        DOMcell.addEventListener("click", (e) => {
-            if (grid.cellById(cellID).setOwner(turnHandler.currPlayer) !== true) {
-                return grid.cellById(cellID).setOwner(turnHandler.currPlayer);
-            }
-
-            DOMcell.textContent = turnHandler.currPlayer;
-
-            turnHandler.changeTurn();
-        });
+        DOMcell.addEventListener("click", drawCell(cellID, DOMcell));
     };
 
     return {
