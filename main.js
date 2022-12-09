@@ -28,6 +28,10 @@ const gridFactory = (size, lineSize) => {
         const y = Math.floor(id / gridSize);
 
         const setOwner = (newOwner) => {
+            if (newOwner === "none") {
+                return true;
+            }
+
             //Checks that the new owner is a string
             if (checkForType(newOwner, "string") !== true) {
                 return checkForType(newOwner, "string");
@@ -277,6 +281,11 @@ const gameObject = (() => {
 
     const turnHandler = (() => {
         const turns = [];
+        let currPlayer = "none";
+
+        const getCurrPlayer = () => {
+            return currPlayer;
+        };
 
         const addPlayer = (player) => {
             turns.push(player);
@@ -287,8 +296,7 @@ const gameObject = (() => {
             if (trueRandomTurns) {
                 return turns[Math.floor(Math.random() * turns.length)];
             }
-
-            let nextIndex = turns.find(currPlayer) + 1;
+            let nextIndex = turns.findIndex((turn) => turn === currPlayer) + 1;
             nextIndex =
                 nextIndex > turns.length - 1
                     ? nextIndex - turns.length
@@ -307,13 +315,11 @@ const gameObject = (() => {
             }
         };
 
-        let currPlayer;
-
         return {
             addPlayer,
             nextTurn,
             shuffle,
-            currPlayer,
+            getCurrPlayer,
             turns,
         };
     })();
@@ -343,22 +349,23 @@ const gameObject = (() => {
     };
 
     const drawCell = (cellID, DOMcell) => {
-        if (typeof turnHandler.currPlayer !== "string") {
+        const currentPlayer = turnHandler.getCurrPlayer();
+        if (typeof currentPlayer !== "string") {
             DOMcell.textContent = "";
             return;
         }
-        if (grid.cellById(cellID).setOwner(turnHandler.currPlayer) !== true) {
-            return grid.cellById(cellID).setOwner(turnHandler.currPlayer);
+        if (grid.cellById(cellID).setOwner(currentPlayer) !== true) {
+            return grid.cellById(cellID).setOwner(currentPlayer);
         }
 
-        DOMcell.textContent = turnHandler.currPlayer;
+        DOMcell.textContent = currentPlayer;
 
-        turnHandler.changeTurn();
+        turnHandler.nextTurn();
     };
 
     const addCellEvents = (cellID) => {
         const DOMcell = document.getElementById(`cell${cellID}`);
-        DOMcell.addEventListener("click", drawCell(cellID, DOMcell));
+        DOMcell.addEventListener("click", () => drawCell(cellID, DOMcell));
     };
 
     return {

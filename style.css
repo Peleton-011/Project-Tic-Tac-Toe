@@ -1,3 +1,7 @@
+:root {
+    --size: 3;
+}
+
 body {
     min-height: 100vh;
     min-width: 100vw;
@@ -21,4 +25,15 @@ main {
 
 footer {
     grid-area: footer;
+}
+
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(var(--size), minmax(50px, 1fr))
+}
+
+.cell {
+    aspect-ratio: 1/1;
+    background-color: aqua;
+    border: 1px solid black;
 }
