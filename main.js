@@ -101,8 +101,11 @@ const gridFactory = (size, lineSize) => {
             for (let j = 0; j < size; j++) {
                 row.push(cellById(isRotated ? coordsToId(i, j) : coordsToId(j, i)));
             }
+            
+            console.log(`Row ${isRotated ? "rotated" : "not rotated"} ${i} is:`)
+            console.log(...row);
 
-            if (row.every((cell) => cell.owner === user)) {
+            if (row.every((cell) => cell.getOwner() === user)) {
                 return true;
             }
         }
@@ -118,10 +121,13 @@ const gridFactory = (size, lineSize) => {
             diagonal.push(cell(i, i));
         }
 
-        if (diagonal.every((cell) => cell.owner === user)) {
+        if (diagonal.every((cell) => cell.getOwner() === user)) {
             return true;
         }
 
+        console.log(`Diagonal tl to br is:`);
+        console.log(...diagonal);
+        
         //Resets diagonal
         diagonal.length = 0;
 
@@ -130,7 +136,10 @@ const gridFactory = (size, lineSize) => {
             diagonal.push(cell(i, size - i - 1));
         }
 
-        if (diagonal.every((cell) => cell.owner === user)) {
+        console.log(`Diagonal bl to tr is:`);
+        console.log(...diagonal);
+
+        if (diagonal.every((cell) => cell.getOwner() === user)) {
             return true;
         }
 
@@ -164,7 +173,7 @@ const gridFactory = (size, lineSize) => {
                 const cell = isRotated
                     ? cell(mainCoord, secondaryCoord)
                     : cell(secondaryCoord, mainCoord);
-                if (cell.owner !== user) {
+                if (cell.getOwner() !== user) {
                     return false;
                 } else {
                     chain++;
@@ -199,7 +208,7 @@ const gridFactory = (size, lineSize) => {
 
                 const cell = cell(isRotated ? currX + i : currX - i, currY + i);
 
-                if (cell.owner !== user) {
+                if (cell.getOwner() !== user) {
                     return false;
                 } else {
                     chain++;
@@ -365,6 +374,8 @@ const gameObject = (() => {
         const DOMcell = document.getElementById(`cell${cellID}`);
         DOMcell.addEventListener("click", () => {
             drawCell(cellID, DOMcell)
+            console.log(`User: ${turnHandler.getCurrPlayer()}`);
+            console.log(grid.checkWin(turnHandler.getCurrPlayer()));
             if (grid.checkWin(turnHandler.getCurrPlayer())) {
                 gameOver(turnHandler.getCurrPlayer());
             }
