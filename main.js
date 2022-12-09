@@ -99,7 +99,7 @@ const gridFactory = (size, lineSize) => {
         for (let i = 0; i < size; i++) {
             const row = [];
             for (let j = 0; j < size; j++) {
-                row.push(cell(isRotated ? coordsToId(i, j) : coordsToId(j, i)));
+                row.push(cellById(isRotated ? coordsToId(i, j) : coordsToId(j, i)));
             }
 
             if (row.every((cell) => cell.owner === user)) {
@@ -127,7 +127,7 @@ const gridFactory = (size, lineSize) => {
 
         //Checks bottom left to top right diagonal
         for (let i = 0; i < size; i++) {
-            diagonal.push(cell(i, size - i));
+            diagonal.push(cell(i, size - i - 1));
         }
 
         if (diagonal.every((cell) => cell.owner === user)) {
@@ -359,13 +359,17 @@ const gameObject = (() => {
         }
 
         DOMcell.textContent = currentPlayer;
-
-        turnHandler.nextTurn();
     };
 
     const addCellEvents = (cellID) => {
         const DOMcell = document.getElementById(`cell${cellID}`);
-        DOMcell.addEventListener("click", () => drawCell(cellID, DOMcell));
+        DOMcell.addEventListener("click", () => {
+            drawCell(cellID, DOMcell)
+            if (grid.checkWin(turnHandler.getCurrPlayer())) {
+                gameOver(turnHandler.getCurrPlayer());
+            }
+            turnHandler.nextTurn();
+        });
     };
 
     return {
