@@ -413,6 +413,8 @@ const generatePopUp = (config) => {
     popUp.style.setProperty("top", "50%");
     popUp.style.setProperty("left", "50%");
     popUp.style.setProperty("transform", "translate(-50%, -50%)");
+    popUp.style.setProperty("white-space", "nowrap");
+    popUp.style.setProperty("height", String(config.fontSize * 1.5));
     
     //Implement specific properties
     popUp.style.setProperty("color", config.color);
@@ -432,8 +434,9 @@ const generatePopUp = (config) => {
 
 
 function setup() {
-    gameObject.populate(3, 3);
-    gameObject.drawBoard(3);
+    const size = 4;
+    gameObject.populate(size, size);
+    gameObject.drawBoard(size);
     gameObject.turnHandler.addPlayer("X");
     gameObject.turnHandler.addPlayer("O");
 }

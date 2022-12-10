@@ -14,6 +14,8 @@ body {
 
     grid-template-columns: 1fr min(81vw, 81vh) 1fr;
     grid-template-rows: 1fr min(81vw, 81vh) 1fr;
+    overflow: visible;
+    text-overflow: clip;
 }
 
 header {
