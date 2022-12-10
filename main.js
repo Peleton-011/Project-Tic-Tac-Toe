@@ -102,9 +102,6 @@ const gridFactory = (size, lineSize) => {
                 row.push(cellById(isRotated ? coordsToId(i, j) : coordsToId(j, i)));
             }
             
-            console.log(`Row ${isRotated ? "rotated" : "not rotated"} ${i} is:`)
-            console.log(...row);
-
             if (row.every((cell) => cell.getOwner() === user)) {
                 return true;
             }
@@ -125,9 +122,6 @@ const gridFactory = (size, lineSize) => {
             return true;
         }
 
-        console.log(`Diagonal tl to br is:`);
-        console.log(...diagonal);
-        
         //Resets diagonal
         diagonal.length = 0;
 
@@ -135,9 +129,6 @@ const gridFactory = (size, lineSize) => {
         for (let i = 0; i < size; i++) {
             diagonal.push(cell(i, size - i - 1));
         }
-
-        console.log(`Diagonal bl to tr is:`);
-        console.log(...diagonal);
 
         if (diagonal.every((cell) => cell.getOwner() === user)) {
             return true;
@@ -380,8 +371,6 @@ const gameObject = (() => {
             }
 
             drawCell(cellID, DOMcell)
-            console.log(`User: ${turnHandler.getCurrentPlayer()}`);
-            console.log(grid.checkWin(turnHandler.getCurrentPlayer()));
             if (grid.checkWin(turnHandler.getCurrentPlayer())) {
                 gameOver(turnHandler.getCurrentPlayer());
             }
@@ -391,7 +380,7 @@ const gameObject = (() => {
 
     const gameOver = (winner) => {
         isGameOver = true;
-        generatePopUp(new Config("green", "100px", "bold", "italic", `${winner} wins!`, "win-popup"));
+        generatePopUp(new Config("green", "100px", "bold", "italic", `${winner} WINS!`, "win-popup"));
     } 
 
     return {
