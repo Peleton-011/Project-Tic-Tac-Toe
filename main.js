@@ -288,30 +288,38 @@ const errorFactory = (errorID, details, message) => {
 const gameObject = (() => {
     let grid = gridFactory(3, 3);
 
+    let isGameOver = false;
+
     const turnHandler = (() => {
         const turns = [];
-        let currPlayer = "none";
+        let currentPlayer = "none";
+        let previousPlayer = "none";
 
-        const getCurrPlayer = () => {
-            return currPlayer;
+        const getCurrentPlayer = () => {
+            return currentPlayer;
+        };
+
+        const getPreviousPlayer = () => {
+            return previousPlayer;
         };
 
         const addPlayer = (player) => {
             turns.push(player);
-            currPlayer = player;
+            currentPlayer = player;
         };
 
         const nextTurn = (trueRandomTurns) => {
+            previousPlayer = currentPlayer;
             if (trueRandomTurns) {
                 return turns[Math.floor(Math.random() * turns.length)];
             }
-            let nextIndex = turns.findIndex((turn) => turn === currPlayer) + 1;
+            let nextIndex = turns.findIndex((turn) => turn === currentPlayer) + 1;
             nextIndex =
                 nextIndex > turns.length - 1
                     ? nextIndex - turns.length
                     : nextIndex;
 
-            currPlayer = turns[nextIndex];
+            currentPlayer = turns[nextIndex];
         };
 
         //Use Fisher Yates shuffle to sort turns
@@ -328,7 +336,8 @@ const gameObject = (() => {
             addPlayer,
             nextTurn,
             shuffle,
-            getCurrPlayer,
+            getCurrPlayer: getCurrentPlayer,
+            getPreviousPlayer,
             turns,
         };
     })();
@@ -373,6 +382,10 @@ const gameObject = (() => {
     const addCellEvents = (cellID) => {
         const DOMcell = document.getElementById(`cell${cellID}`);
         DOMcell.addEventListener("click", () => {
+            if (isGameOver) {
+                return;
+            }
+            
             drawCell(cellID, DOMcell)
             console.log(`User: ${turnHandler.getCurrPlayer()}`);
             console.log(grid.checkWin(turnHandler.getCurrPlayer()));
@@ -383,6 +396,11 @@ const gameObject = (() => {
         });
     };
 
+    const gameOver = (currentPlayer) => {
+        isGameOver = true;
+        generatePopUp(new Config("green", "60", "bold", "italic", `${turnHandler.getPreviousPlayer()} wins!`));
+    } 
+
     return {
         populate,
         drawBoard,
@@ -390,6 +408,44 @@ const gameObject = (() => {
         grid,
     };
 })();
+
+function Config (color, fontSize, fontWeight, fontStyle, text) {
+    this.color = color;
+    this.fontSize = fontSize;
+    this.fontWeight = fontWeight;
+    this.fontStyle = fontStyle;
+    this.text = text;
+    return this;
+}
+
+const generatePopUp = (config) => {
+
+    //Create the DOM element for the pop up
+    const popUp = document.createElement("div");
+    popUp.id = "popUp";
+    
+    //Add basic properties
+    popUp.classList.add("popUp");
+    popUp.style.setProperty("position", "fixed");
+    popUp.style.setProperty("top", "50%");
+    popUp.style.setProperty("left", "50%");
+    popUp.style.setProperty("transform", "translate(-50%, -50%)");
+    
+    //Implement specific properties
+    popUp.style.setProperty("color", config.color);
+    popUp.style.setProperty("font-size", config.fontSize);
+    popUp.style.setProperty("font-weight", config.fontWeight);
+    popUp.style.setProperty("font-style", config.fontStyle);
+
+    //Add the text content
+    popUp.textContent = config.text;
+
+    //Add the pop up to the DOM
+    document.body.appendChild(popUp);
+
+    return popUp;
+}
+
 
 function setup() {
     gameObject.populate(3, 3);
