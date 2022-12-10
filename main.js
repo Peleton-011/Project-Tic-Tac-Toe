@@ -293,14 +293,9 @@ const gameObject = (() => {
     const turnHandler = (() => {
         const turns = [];
         let currentPlayer = "none";
-        let previousPlayer = "none";
 
         const getCurrentPlayer = () => {
             return currentPlayer;
-        };
-
-        const getPreviousPlayer = () => {
-            return previousPlayer;
         };
 
         const addPlayer = (player) => {
@@ -309,7 +304,6 @@ const gameObject = (() => {
         };
 
         const nextTurn = (trueRandomTurns) => {
-            previousPlayer = currentPlayer;
             if (trueRandomTurns) {
                 return turns[Math.floor(Math.random() * turns.length)];
             }
@@ -336,8 +330,7 @@ const gameObject = (() => {
             addPlayer,
             nextTurn,
             shuffle,
-            getCurrPlayer: getCurrentPlayer,
-            getPreviousPlayer,
+            getCurrentPlayer,
             turns,
         };
     })();
@@ -367,7 +360,7 @@ const gameObject = (() => {
     };
 
     const drawCell = (cellID, DOMcell) => {
-        const currentPlayer = turnHandler.getCurrPlayer();
+        const currentPlayer = turnHandler.getCurrentPlayer();
         if (typeof currentPlayer !== "string") {
             DOMcell.textContent = "";
             return;
@@ -385,20 +378,20 @@ const gameObject = (() => {
             if (isGameOver) {
                 return;
             }
-            
+
             drawCell(cellID, DOMcell)
-            console.log(`User: ${turnHandler.getCurrPlayer()}`);
-            console.log(grid.checkWin(turnHandler.getCurrPlayer()));
-            if (grid.checkWin(turnHandler.getCurrPlayer())) {
-                gameOver(turnHandler.getCurrPlayer());
+            console.log(`User: ${turnHandler.getCurrentPlayer()}`);
+            console.log(grid.checkWin(turnHandler.getCurrentPlayer()));
+            if (grid.checkWin(turnHandler.getCurrentPlayer())) {
+                gameOver(turnHandler.getCurrentPlayer());
             }
             turnHandler.nextTurn();
         });
     };
 
-    const gameOver = (currentPlayer) => {
+    const gameOver = (winner) => {
         isGameOver = true;
-        generatePopUp(new Config("green", "60", "bold", "italic", `${turnHandler.getPreviousPlayer()} wins!`));
+        generatePopUp(new Config("green", "100px", "bold", "italic", `${winner} wins!`, "win-popup"));
     } 
 
     return {
@@ -409,12 +402,13 @@ const gameObject = (() => {
     };
 })();
 
-function Config (color, fontSize, fontWeight, fontStyle, text) {
+function Config (color, fontSize, fontWeight, fontStyle, text, popUpClass) {
     this.color = color;
     this.fontSize = fontSize;
     this.fontWeight = fontWeight;
     this.fontStyle = fontStyle;
     this.text = text;
+    this.popUpClass = popUpClass;
     return this;
 }
 
@@ -436,6 +430,7 @@ const generatePopUp = (config) => {
     popUp.style.setProperty("font-size", config.fontSize);
     popUp.style.setProperty("font-weight", config.fontWeight);
     popUp.style.setProperty("font-style", config.fontStyle);
+    popUp.classList.add(config.class);
 
     //Add the text content
     popUp.textContent = config.text;
