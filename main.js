@@ -380,8 +380,21 @@ const gameObject = (() => {
 
     const gameOver = (winner) => {
         isGameOver = true;
-        generatePopUp(new Config("green", "100px", "bold", "italic", `${winner} WINS!`, "win-popup"));
+        gameOverPopUp(winner);
     } 
+
+    const gameOverPopUp = (winner) => {
+
+        const popUp = generatePopUp(new Config("green", "100px", "bold", "italic", `${winner} WINS!`, "win-popup"));
+
+        const playAgain = () => {
+
+        };
+
+        const mainMenu = () => {
+
+        };
+    }
 
     return {
         populate,
@@ -401,11 +414,23 @@ function Config (color, fontSize, fontWeight, fontStyle, text, popUpClass) {
     return this;
 }
 
+function BtnConfig (config, x, y, verticalPadding, horizontalPadding, func) {
+
+    this.x = x;
+    this.y = y;
+
+    this.verticalPadding = verticalPadding;
+    this.horizontalPadding = horizontalPadding;
+
+    this.func = func;
+
+    return Object.assign(this, config);
+}
+
 const generatePopUp = (config) => {
 
     //Create the DOM element for the pop up
     const popUp = document.createElement("div");
-    popUp.id = "popUp";
     
     //Add basic properties
     popUp.classList.add("popUp");
@@ -426,11 +451,38 @@ const generatePopUp = (config) => {
     //Add the text content
     popUp.textContent = config.text;
 
-    //Add the pop up to the DOM
-    document.body.appendChild(popUp);
-
     return popUp;
 }
+
+const generateButton = (config) => {
+    //Create the DOM element for the button
+    const button = document.createElement("div");
+    
+    //Add basic properties
+    button.style.setProperty("position", "absolute");
+    button.style.setProperty("transform", "translate(-50%, -50%)");
+    button.style.setProperty("white-space", "nowrap");  
+    
+    //Implement specific properties
+    button.style.setProperty("top", config.y);
+    button.style.setProperty("left", config.x);
+    button.style.setProperty("color", config.color);
+    button.style.setProperty("font-size", config.fontSize);
+    button.style.setProperty("font-weight", config.fontWeight);
+    button.style.setProperty("font-style", config.fontStyle);
+    button.style.setProperty("paddding-top", config.verticalPadding);
+    button.style.setProperty("paddding-bottom", config.verticalPadding);
+    button.style.setProperty("paddding-right", config.horizontalPadding);
+    button.style.setProperty("paddding-left", config.horizontalPadding);
+
+    button.classList.add(config.class);
+
+    //Add the function related to the button
+    button.addEventListener("click", config.func);
+
+
+    return button;
+};
 
 
 function setup() {
